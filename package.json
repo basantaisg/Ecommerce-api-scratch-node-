@@ -1,0 +1,17 @@
+{
+  "name": "ecommerce-api",
+  "version": "1.0.0",
+  "description": "This is a node-app built using scratch-nodeJs for e-commerce applications",
+  "license": "ISC",
+  "author": "Basanta",
+  "main": "server.js",
+  "scripts": {
+    "dev": "nodemon server.js",
+    "start": "node server.js"
+  },
+  "type": "module",
+  "dependencies": {
+    "nodemon": "^3.1.9",
+    "uuid": "^11.0.5"
+  }
+}
