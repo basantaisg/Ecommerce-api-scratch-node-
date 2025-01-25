@@ -1,10 +1,13 @@
 import http from 'http';
-import { v4 as uuid } from 'uuid';
-import 'dotenv/config';
 
-// product array!
-
+// product array
 const products = [];
+let productId = 1;
+
+// GET => DATA KO GET KARTA HAI
+// POST => DATA KO SEND KARTA HAI
+// PUT => DATA KO UPDATE KARTA HAI
+// DELET => DATA KO DELETE KARTA HAI
 
 const server = http.createServer((req, res) => {
   const url = req.url;
@@ -12,34 +15,84 @@ const server = http.createServer((req, res) => {
 
   if (url === '/products' && method === 'POST') {
     let body = '';
-    req.on('data', (chunk) => (body += chunk));
-
+    req.on('data', (chuck) => {
+      body += chuck;
+    });
     req.on('end', () => {
-      let id = uuid();
       const data = JSON.parse(body);
-      const product = { id, ...data };
-      console.log(`UUID IS: ${uuid()}`);
+      const product = { id: productId++, ...data };
       products.push(product);
-      res.writeHead(201, { 'CONTENT-TYPE': 'APPLICATION/JSON' });
+      res.writeHead(201, { 'content-type': 'application/json' });
       res.end(
         JSON.stringify({
-          message: 'Product Added Sucessfully...',
-          sucess: true,
+          message: 'Product Added Successfully',
+          product: product,
+          success: true,
         })
       );
     });
-  } else if (url.startsWith('/products/') && method === 'PUT') {
-    res.writeHead(200, { 'COntent-Type': 'application/json' });
+  } else if (url === '/products' && method === 'GET') {
+    res.writeHead(201, { 'content-type': 'application/json' });
     res.end(
       JSON.stringify({
         message: 'Fetched All Products',
         products: products,
-        sucess: true,
+        success: true,
       })
     );
-  }else if (url ==='/products')
+  } else if (url.startsWith('/products/') && method === 'PUT') {
+    const id = parseInt(url.split('/')[2], 10);
+    let body = '';
+    req.on('data', (chuck) => {
+      body += chuck;
+    });
+
+    req.on('end', () => {
+      const data = JSON.parse(body);
+      const index = products.findIndex((p) => p.id === id);
+      if (index !== -1) {
+        products[index] = { id, ...data };
+
+        res.writeHead(201, { 'content-type': 'application/json' });
+        res.end(
+          JSON.stringify({
+            message: 'Product Updated Successfully',
+            products: products[index],
+            success: true,
+          })
+        );
+      } else {
+        res.writeHead(201, { 'content-type': 'application/json' });
+        res.end(
+          JSON.stringify({
+            message: 'Product not found',
+          })
+        );
+      }
+    });
+  } else if (url.startsWith('/products/') && method === 'DELETE') {
+    const id = parseInt(url.split('/')[2], 10);
+    const index = products.findIndex((p) => p.id === id);
+    if (index !== -1) {
+      const deleteProduct = products.splice(index, 1);
+      res.writeHead(201, { 'content-type': 'application/json' });
+      res.end(
+        JSON.stringify({
+          message: 'Product Deleted Successfully',
+          products: deleteProduct[0],
+          success: true,
+        })
+      );
+    } else {
+      res.writeHead(201, { 'content-type': 'application/json' });
+      res.end(
+        JSON.stringify({
+          message: 'Product not found',
+        })
+      );
+    }
+  }
 });
 
-const port = process.env.PORT;
-
-server.listen(port, () => console.log(`Server is running on port: ${port}`));
+const port = 3000;
+server.listen(port, () => console.log(`server is running on port ${port}`));
